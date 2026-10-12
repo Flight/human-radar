@@ -5,6 +5,10 @@
 
 A Halloween prop: a green "military" radar scope that watches the door, paints the people walking up behind you as fading blips, warns them with a voice, and when they get right behind you a pumpkin turns toward them, screams at them, strobes and pours fog. Built on the Waveshare ESP32-P4-WIFI6-Touch-LCD-4B with an HLK-LD2450 mmWave sensor sitting next to you on the table, facing the door. Until the sensor is wired up, a simulator sends fake visitors through the door.
 
+![BREACH stage: red ring, breach zone around you, a visitor painted at 5 m, fog running](docs/screen-breach.jpg)
+
+*The scope during a breach: the outer ring and the footer turn red, the fog is on, and the sweep's afterglow follows the line around. The DOOR is straight ahead of the sensor, YOU are at the centre, the dashed lines mark the sensor's field of view.*
+
 ## Features
 
 - 4" 720x720 phosphor-green radar scope: four range rings, the threat and breach zones, the sensor's field of view, bearing scale, rotating sweep with an afterglow trail, at about 30 fps
@@ -46,6 +50,7 @@ human-radar/
 │   ├── ld2450/                 # LD2450 UART frame parser
 │   └── target_sim/             # Fake visitors until the LD2450 is connected
 ├── assets/                     # threat.wav, getout.wav, scream.wav (SPIFFS "storage" partition)
+├── docs/                       # Screenshots
 ├── partitions.csv              # 8 MB app + 4 MB storage
 ├── sdkconfig.defaults          # Board-specific build defaults (target, flash, PSRAM, LVGL, BSP)
 ├── README.md
