@@ -1,0 +1,270 @@
+menu "HUMAN RADAR SETTINGS (Waveshare ESP32-P4-WIFI6-Touch-LCD-4B)"
+  config DISPLAY_BRIGHTNESS
+    int "LCD backlight brightness (%)"
+    range 1 100
+    default 80
+
+  config RADAR_RANGE_MM
+    int "Scope range: radius of the outer ring (mm)"
+    range 1000 10000
+    default 6000
+    help
+      The HLK-LD2450 tracks people up to about 6 m, so the outer ring is 6 m
+      by default. The four range rings split this evenly.
+
+  config RADAR_SWEEP_PERIOD_MS
+    int "Sweep revolution time (ms)"
+    range 1000 20000
+    default 4000
+
+  config RADAR_FRAME_PERIOD_MS
+    int "Scope redraw period (ms)"
+    range 10 100
+    default 20
+    help
+      The sweep angle follows the clock, so a slower redraw only lowers the
+      frame rate, not the sweep speed.
+
+  config RADAR_TRAIL_DEGREES
+    int "Sweep afterglow length (degrees)"
+    range 12 120
+    default 48
+
+  config RADAR_BLIP_DECAY_MS
+    int "Blip persistence after the sweep passes (ms)"
+    range 500 10000
+    default 3500
+
+  config RADAR_LOG_FPS
+    bool "Log the scope frame rate every 5 s"
+    default y
+    help
+      Debug aid for tuning the afterglow and redraw settings.
+endmenu
+
+menu "HUMAN RADAR SCENE (escalation stages)"
+  config SCENE_THREAT_RANGE_MM
+    int "THREAT stage: nearest person closer than this (mm)"
+    range 500 10000
+    default 2500
+    help
+      The sensor sits next to you facing the door, so distances are measured
+      from your seat. Inside this range the scope turns amber, the pumpkin
+      turns toward the person and the "threat detected" warning plays.
+
+  config SCENE_BREACH_RANGE_MM
+    int "BREACH stage: someone right behind you (mm)"
+    range 300 5000
+    default 1200
+    help
+      Inside this range the scope turns red, the fog fires, the LEDs strobe
+      and the pumpkin screams at them.
+
+  config SCENE_HYSTERESIS_MM
+    int "Extra distance needed to leave a stage (mm)"
+    range 0 2000
+    default 300
+
+  config SCENE_HOLD_MS
+    int "Keep a stage this long after its trigger is gone (ms)"
+    range 0 30000
+    default 3000
+
+  config SCENE_THREAT_REPEAT_MS
+    int "Repeat the threat warning every (ms)"
+    range 1000 60000
+    default 6000
+
+  config SCENE_SCREAM_REPEAT_MS
+    int "Alternate scream and \"get out\" every (ms)"
+    range 1000 60000
+    default 4000
+
+  config SCENE_TEST_BREACH_MS
+    int "A tap on the scope simulates a breach for this long (ms)"
+    range 1000 60000
+    default 5000
+endmenu
+
+menu "HUMAN RADAR PUMPKIN EFFECTS"
+  config FOG_ENABLED
+    bool "Fog generator trigger"
+    default y
+    help
+      Drives a MOSFET/relay module that powers the ultrasonic fog maker in
+      the pumpkin. Fired on a breach in bursts, with a minimum interval.
+
+  config FOG_GPIO
+    int "Fog trigger GPIO number (header P3 pin 13)"
+    range 0 54
+    default 5
+    depends on FOG_ENABLED
+
+  config FOG_ACTIVE_LOW
+    bool "Fog trigger is active LOW"
+    default n
+    depends on FOG_ENABLED
+
+  config FOG_BURST_MS
+    int "Fog burst length (ms)"
+    range 500 60000
+    default 6000
+    depends on FOG_ENABLED
+
+  config FOG_MIN_INTERVAL_MS
+    int "Minimum time between fog bursts (ms)"
+    range 1000 600000
+    default 12000
+    depends on FOG_ENABLED
+
+  config LEDS_ENABLED
+    bool "WS2812 LEDs in the pumpkin"
+    default y
+    help
+      Green breathing while scanning, amber pulse on a threat, red strobe on
+      a breach.
+
+  config LEDS_GPIO
+    int "LED strip data GPIO number (header P3 pin 12)"
+    range 0 54
+    default 21
+    depends on LEDS_ENABLED
+
+  config LEDS_COUNT
+    int "Number of LEDs"
+    range 1 300
+    default 24
+    depends on LEDS_ENABLED
+
+  config LEDS_BRIGHTNESS
+    int "LED brightness (%)"
+    range 1 100
+    default 60
+    depends on LEDS_ENABLED
+
+  config SERVO_ENABLED
+    bool "Pan servo that turns the pumpkin toward the nearest person"
+    default y
+
+  config SERVO_GPIO
+    int "Servo signal GPIO number (header P3 pin 11)"
+    range 0 54
+    default 4
+    depends on SERVO_ENABLED
+
+  config SERVO_MIN_US
+    int "Servo pulse at -90 degrees (us)"
+    range 300 1500
+    default 500
+    depends on SERVO_ENABLED
+
+  config SERVO_MAX_US
+    int "Servo pulse at +90 degrees (us)"
+    range 1500 3000
+    default 2500
+    depends on SERVO_ENABLED
+
+  config SERVO_TRIM_DEG
+    int "Trim added to every angle so 0 faces the door (degrees)"
+    range -45 45
+    default 0
+    depends on SERVO_ENABLED
+
+  config SERVO_REVERSED
+    bool "Servo turns the wrong way: reverse it"
+    default n
+    depends on SERVO_ENABLED
+
+  config SERVO_SPEED_DEG_S
+    int "Turn speed (degrees per second)"
+    range 10 720
+    default 240
+    depends on SERVO_ENABLED
+
+  config PUMPKIN_X_MM
+    int "Pumpkin position: sideways from the sensor, positive to the right (mm)"
+    range -5000 5000
+    default 0
+
+  config PUMPKIN_Y_MM
+    int "Pumpkin position: ahead of the sensor, toward the door (mm)"
+    range -5000 5000
+    default 0
+endmenu
+
+menu "HUMAN RADAR TARGET SOURCE"
+  config LD2450_ENABLED
+    bool "HLK-LD2450 mmWave sensor on UART"
+    default n
+    help
+      Sensor TX goes to the RX GPIO below, sensor RX to the TX GPIO, 5V and
+      GND from header P3. Disable the simulator when the sensor is in use.
+
+  config LD2450_UART_NUM
+    int "UART peripheral number"
+    range 1 4
+    default 1
+    depends on LD2450_ENABLED
+
+  config LD2450_RX_GPIO
+    int "GPIO wired to the sensor's TX pin (header P3 pin 7)"
+    range 0 54
+    default 2
+    depends on LD2450_ENABLED
+
+  config LD2450_TX_GPIO
+    int "GPIO wired to the sensor's RX pin (header P3 pin 9)"
+    range 0 54
+    default 3
+    depends on LD2450_ENABLED
+
+  config LD2450_MIRROR_X
+    bool "Mirror left/right"
+    default n
+    depends on LD2450_ENABLED
+    help
+      Enable if people walking to your right appear on the left of the scope.
+
+  config TARGET_SIM_ENABLED
+    bool "Simulate visitors walking in from the door (no sensor yet)"
+    default y
+    help
+      Publishes fake people that come through the door, walk up behind you,
+      linger and leave. Disable once the LD2450 feeds real targets.
+
+  config TARGET_SIM_COUNT
+    int "Number of simulated people"
+    range 1 8
+    default 3
+    depends on TARGET_SIM_ENABLED
+endmenu
+
+menu "HUMAN RADAR SOUND SETTINGS"
+  config SOUND_ENABLED
+    bool "Play radar sounds on the built-in speaker"
+    default y
+    help
+      Start-up chirp, a sonar ping per revolution, a blip whenever the sweep
+      paints a person (higher and doubled when they are close), the alarm,
+      and the voice/scream clips from assets/ (synthesised fallbacks when a
+      clip is missing).
+
+  config SOUND_ON_AT_BOOT
+    bool "Sound on at boot"
+    default n
+    depends on SOUND_ENABLED
+    help
+      Off: the radar starts muted and the SOUND OFF button on the screen
+      turns the sounds on. On: sounds play from the start-up chirp onwards.
+
+  config SOUND_VOLUME
+    int "Speaker volume (%)"
+    range 0 100
+    default 70
+    depends on SOUND_ENABLED
+
+  config SOUND_SWEEP_PING
+    bool "Ping once per sweep revolution"
+    default y
+    depends on SOUND_ENABLED
+endmenu

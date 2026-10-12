@@ -1,0 +1,5 @@
+dependencies:
+  # Board support: ST7703 MIPI DSI panel, GT911 touch, ES8311/ES7210 audio, LVGL adapter
+  waveshare/esp32_p4_wifi6_touch_lcd_4b: "^3.0.1"
+  # WS2812 LEDs in the pumpkin (RMT backend)
+  espressif/led_strip: "^3.1.0"
